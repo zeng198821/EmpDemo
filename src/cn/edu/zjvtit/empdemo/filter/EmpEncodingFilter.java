@@ -34,8 +34,8 @@ public class EmpEncodingFilter implements Filter{
      * @param request 请求对象
      * @param response 回发对象
      * @param chain 拦截对象
-     * @throws IOException
-     * @throws ServletException
+     * @throws IOException 错误抛出
+     * @throws ServletException 错误抛出
      */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response,
