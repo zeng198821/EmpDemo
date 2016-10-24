@@ -549,3 +549,14 @@ zeng.packetSubmitData = function (servicesName_para,submitData_para){
     }
     return {serversName:servicesName_para,submitData:zeng.JSON.encode(submitData_para)};
 };
+
+/**
+ * 关闭弹出窗口
+ */
+zeng.closeWindow = function(){
+    if (window.CloseOwnerWindow)
+        return window.CloseOwnerWindow('close');
+    else
+        window.close();
+
+};
