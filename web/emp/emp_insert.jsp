@@ -12,6 +12,14 @@
     <title>职员注册页面</title>
 </head>
 <script type="text/javascript" src="../js/demo.js"></script>
+
+<style type="text/css" >
+    input{
+        border-radius: 4px;
+    }
+
+</style>
+
 <script type="text/javascript">
     var xmlHttp;
     var flag;
@@ -105,57 +113,75 @@
         window.close();
     }
 </script>
-<center>
-    <form action="<%=request.getContextPath() %>/EmpServlet?p=emp_insert" method="post" enctype="multipart/form-data" onsubmit="return checkForm()">
-        <table border="1" width="80%">
-            <tr>
-                <td colspan="2" align="center"><h2>添加职员</h2></td>
-            </tr>
-            <tr>
-                <td>职员编号</td>
-                <td><input type="text" name="empno"></td>
-            </tr>
-            <tr>
-                <td>职员姓名</td>
-                <td><input type="text" name="ename" onblur="checkEname(this.value)"><span id="msg"></span></td>
-            </tr>
-            <tr>
-                <td>职员职位</td>
-                <td><input type="text" name="job"></td>
-            </tr>
-            <tr>
-                <td>入职日期</td>
-                <td>
-                    <input type="text" name="hiredate" size="15" maxlength="15"
-                           onclick='popUpCalendar(this,this,"yyyy-mm-dd")' readonly="true">
-                </td>
-            </tr>
-            <tr>
-                <td>职员工资</td>
-                <td><input type="text" name="sal"></td>
-            </tr>
-            <tr>
-                <td>职员奖金</td>
-                <td><input type="text" name="comm"></td>
-            </tr>
-            <tr>
-                <td>职员照片</td>
-                <td>
-                    <input type="file" name="pic"><br>
-                    <font color="red" size="2">如果不想上传，可以不选！</font>
-                </td>
+<div style="width: 500px;text-align: center;">
+    <form class="form-horizontal"  role="form">
+        <h2>添加职员</h2>
 
-            </tr>
-            <tr>
-                <td colspan="2" align="center">
-                    <input type="submit" class="btn btn-primary" value="提交">
-                    <input type="reset" class="btn btn-warning" value="重置">
-                </td>
-            </tr>
-        </table>
+        <div class="form-group">
+            <label for="empno" class="col-md-4 control-label">员工编号</label>
+            <div class="col-md-6 input-group">
+                <input type="text" class="form-control" name="empno" id="empno" placeholder="请输入员工编号...">
+            </div>
+        </div>
+
+        <div class="form-group" >
+            <label for="empname" class="col-md-4 control-label">员工姓名</label>
+            <div class="col-md-6 input-group">
+                <input type="text" class="form-control" name="empname" id="empname" placeholder="请输入员工姓名...">
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <label for="job" class="col-md-4 control-label">职位</label>
+            <div class="col-md-6 input-group">
+                <input type="text" class="form-control" name="job" id="job" placeholder="请输入职位...">
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <label for="hiredate" class="col-md-4 control-label">入职日期</label>
+            <div class="input-group date form_date col-md-6" data-date="" data-date-format="yyyy-MM-dd" data-link-field="hiredate" data-link-format="yyyy-mm-dd">
+                <input class="form-control" size="16" type="text" value=""  name="hiredatea" id="hiredate" readonly placeholder="请选择入职日期...">
+                <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="sal" class="col-md-4 control-label">工资</label>
+            <div class="col-md-6 input-group">
+                <input type="text" class="form-control" name="sal" id="sal" placeholder="请输入员工工资...">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="comm" class="col-md-4 control-label">奖金</label>
+            <div class="col-md-6 input-group">
+                <input type="text" class="form-control" name="comm" id="comm" placeholder="请输入员工奖金...">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">提交</button>
+
+        <button type="reset" class="btn btn-warning">重置</button>
     </form>
     <a href="#" onclick="closeWin()">关闭窗口</a>
-</center>
+</div>
+<script type="application/javascript">
+    $('.form_date').datetimepicker({
+        language:  'zh-CN',
+        weekStart: 1,
+        todayBtn:  1,
+        autoclose: 1,
+        todayHighlight: 1,
+        startView: 2,
+        minView: 2,
+        forceParse: 0
+    });
+
+</script>
 </body>
 </html>
 
