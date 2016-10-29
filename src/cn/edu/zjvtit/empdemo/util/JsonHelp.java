@@ -1,8 +1,10 @@
 package cn.edu.zjvtit.empdemo.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import com.fasterxml.jackson.databind.JavaType;
 import java.io.IOException;
 
 /**
@@ -33,7 +35,31 @@ public class JsonHelp {
      * @throws IOException IO错误
      */
     public  static  Object formatJson (String jsonStr,Class<?> classname) throws IOException {
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         return mapper.readValue(jsonStr, classname);
     }
 
+    /**
+     * 将Json格式字符串数据转换成Java对象
+     * @param jsonStr 待转换的Json格式字符串数据
+     * @param classname 转换后的Java对象的Class类型
+     * @return 转换完毕的Java对象
+     * @throws IOException IO错误
+     */
+    public  static  Object formatJson (String jsonStr,JavaType classname) throws IOException {
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return mapper.readValue(jsonStr, classname);
+    }
+
+
+    /**
+     * 获取泛型的Collection Type
+     * @param collectionClass 泛型的Collection
+     * @param elementClasses 元素类
+     * @return JavaType Java类型
+     * @since 1.0
+     */
+    public static JavaType getCollectionType(Class<?> collectionClass, Class<?>... elementClasses) {
+        return mapper.getTypeFactory().constructParametricType(collectionClass, elementClasses);
+    }
 }

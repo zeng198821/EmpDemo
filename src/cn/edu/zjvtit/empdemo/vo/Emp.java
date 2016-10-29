@@ -4,6 +4,8 @@ package cn.edu.zjvtit.empdemo.vo;
  * Created by zeng on 2016-10-22.
  */
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+
 import java.util.Date;
 
 /**

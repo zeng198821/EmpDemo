@@ -8,6 +8,7 @@ package cn.edu.zjvtit.empdemo.servlet;
 import java.io.*;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.StandardSocketOptions;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.edu.zjvtit.empdemo.dao.impl.EmpDAOImpl;
 import cn.edu.zjvtit.empdemo.factory.DAOFactory;
 import cn.edu.zjvtit.empdemo.util.JsonHelp;
 import cn.edu.zjvtit.empdemo.vo.CommData;
@@ -55,17 +57,36 @@ public class EmpServlet extends HttpServlet{
             tmpEmp = (Emp)JsonHelp.formatJson(tmpCommData.getSubmitData(),Emp.class);
             doResponse(resp,doCreate(tmpEmp));
         }
-        if(p.equals("doUpdatePage")){
-            this.doUpdatePage(req, resp);
+        if(p.equals("emp_info")){
+            Emp tmpEmp = null;
+            tmpEmp = (Emp)JsonHelp.formatJson(tmpCommData.getSubmitData(),Emp.class);
+            try {
+                tmpEmp = DAOFactory.getIEmpDAOInstance().findEmpById(tmpEmp.getEmpno());
+            }catch (Exception ex){
+                System.out.printf(ex.toString());
+            }
+            doResponse(resp,tmpEmp);
         }
-        if(p.equals("doUpdate")){
-            this.doUpdate(req, resp);
+        if(p.equals("emp_list")){
+            List tmpdata = null;
+            try{
+                tmpdata = DAOFactory.getIEmpDAOInstance().findAll(1,10,"");
+            }catch (Exception ex){
+                System.out.printf(ex.toString());
+            }
+            doResponse(resp,tmpdata);
         }
-        if(p.equals("doDelete")){
-            this.doDelete(req, resp);
+
+        if(p.equals("emp_update")){
+            Emp tmpEmp = null;
+            tmpEmp = (Emp)JsonHelp.formatJson(tmpCommData.getSubmitData(),Emp.class);
+            doResponse(resp,doUpdate(tmpEmp));
         }
-        if(p.equals("getAllEname")){
-            this.getAllEname(req, resp);
+
+        if(p.equals("emp_delete")){
+            List<Emp> tmpEmp = null;
+            tmpEmp = (List<Emp>)JsonHelp.formatJson(tmpCommData.getSubmitData(),JsonHelp.getCollectionType(List.class,Emp.class));
+            doResponse(resp,doDelete(tmpEmp));
         }
     }
 
@@ -89,6 +110,8 @@ public class EmpServlet extends HttpServlet{
         }
         return json.toString();
     }
+
+
 
     /**
      * 执行回发数据
@@ -130,7 +153,7 @@ public class EmpServlet extends HttpServlet{
         try {
             boolean tmpresult = DAOFactory.getIEmpDAOInstance().doCreate(emp_para);
             tmpdata.setResult(tmpresult);
-            tmpdata.setMessage(tmpresult ? "创建用户成功" : "创建用户失败");
+            tmpdata.setMessage(tmpresult ? "创建员工信息成功" : "创建员工信息失败");
         }catch (Exception ex){
             System.out.println(ex.toString());
             tmpdata.setMessage(ex.toString());
@@ -138,165 +161,57 @@ public class EmpServlet extends HttpServlet{
         return tmpdata;
     }
 
+    /**
+     *  更新员工信息
+     * @param emp_para 员工信息
+     * @return 执行结果
+     */
+    public RespData doUpdate(Emp emp_para){
+        RespData tmpdata = new RespData();
+        try {
+            boolean tmpresult = DAOFactory.getIEmpDAOInstance().doUpdate(emp_para);
+            tmpdata.setResult(tmpresult);
+            tmpdata.setMessage(tmpresult ? "更新员工信息成功" : "更新员工信息失败");
+        }catch (Exception ex){
+            System.out.println(ex.toString());
+            tmpdata.setMessage(ex.toString());
+        }
+        return tmpdata;
+    }
 
-    public void doCreate(HttpServletRequest req,HttpServletResponse resp)throws ServletException,IOException{
-        List all=new ArrayList();
-        //SmartUpload smart=new SmartUpload();
-        Emp emp=new Emp();
-        int empno=0;
-        String ename=null;
-        String job=null;
-        Date hiredate=null;
-        float sal=0.0f;
-        float comm=0.0f;
-        String photo="nophoto.jpg";
-        try{
-//
-//            emp.setEmpno(empno);       smart.initialize(this.getServletConfig(),req,resp);         //初始化上传
-//            smart.upload();                     //准备上传
-//
-//            empno=Integer.parseInt(smart.getRequest().getParameter("empno"));
-//            ename=smart.getRequest().getParameter("ename");
-//            job=smart.getRequest().getParameter("job");
-//            hiredate=new SimpleDateFormat("yyyy-mm-dd").parse(smart.getRequest().getParameter("hiredate"));
-//            sal=Float.parseFloat(smart.getRequest().getParameter("sal"));
-//            comm=Float.parseFloat(smart.getRequest().getParameter("comm"));
-//            if(smart.getFiles().getFile(0).getSize()>0){     //判断是否有上传文件
-//                IPTimeStamp its=new IPTimeStamp(req.getRemoteAddr());
-//                拼凑上传文件名称
-//                photo=its.getIPTimeStampRand()+"."+smart.getFiles().getFile(0).getFileExt();
-//            }
-            emp.setEname(ename);
-            emp.setJob(job);
-            emp.setHiredate(hiredate);
-            emp.setSal(sal);
-            emp.setComm(comm);
-            emp.setPhoto(photo);
-            if(DAOFactory.getIEmpDAOInstance().doCreate(emp)){
-//                if(smart.getFiles().getFile(0).getSize()>0){
-//                    //添加成功，保存上传文件
-//                    smart.getFiles().getFile(0).saveAs(getServletContext().getRealPath("/")+"jsp/upload/"+photo);
-//                }
-                all.add("职员信息添加成功！");
-            }else{
-                all.add("职员信息添加失败！");
+    /**
+     * 删除单个员工
+     * @param emp_para 员工信息
+     * @return 执行结果
+     */
+    public RespData doDelete(Emp emp_para){
+        RespData tmpdata = new RespData();
+        try {
+            boolean tmpresult = DAOFactory.getIEmpDAOInstance().doDelete(emp_para.getEmpno());
+            tmpdata.setResult(tmpresult);
+            tmpdata.setMessage(tmpresult ? "删除员工信息成功" : "删除员工信息失败");
+        }catch (Exception ex){
+            System.out.println(ex.toString());
+            tmpdata.setMessage(ex.toString());
+        }
+        return tmpdata;
+    }
+
+    /**
+     * 删除多个员工
+     * @param emp_para 员工信息列表
+     * @return 执行结果
+     */
+    public RespData doDelete(List<Emp> emp_para){
+        RespData tmpdata = new RespData();
+        for (Emp tmp: emp_para ) {
+            tmpdata = doDelete(tmp);
+            if(!tmpdata.isResult()){
+                break;
             }
-        }catch(Exception e){
-            e.printStackTrace();
         }
-        req.setAttribute("infoInsert", all);
-        req.getRequestDispatcher("jsp/admin/emp/emp_insert_do.jsp").forward(req, resp);
+        return tmpdata;
     }
-    public void doUpdatePage(HttpServletRequest req,HttpServletResponse resp)throws ServletException,IOException{
-        int empno=0;
-        Emp emp=null;
-        try{
-            empno=Integer.parseInt(req.getParameter("empno"));
-            emp=DAOFactory.getIEmpDAOInstance().findEmpById(empno);
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        req.setAttribute("infoUpdatePage", emp);
-        req.getRequestDispatcher("jsp/admin/emp/emp_update.jsp").forward(req, resp);
-    }
-    public void doUpdate(HttpServletRequest req,HttpServletResponse resp)throws ServletException,IOException{
-        List all=new ArrayList();
-//        SmartUpload smart=new SmartUpload();
-        Emp emp=new Emp();
-
-        int empno=0;
-        String ename=null;
-        String job=null;
-        Date hiredate=null;
-        float sal=0.0f;
-        float comm=0.0f;
-//        String photo=smart.getRequest().getParameter("pic");
-
-        try{
-//            smart.initialize(getServletConfig(),req,resp);      //初始化上传
-//            smart.upload();                     //准备上传
-//
-//            empno=Integer.parseInt(smart.getRequest().getParameter("empno"));
-//            ename=smart.getRequest().getParameter("ename");
-//            job=smart.getRequest().getParameter("job");
-//            hiredate=new SimpleDateFormat("yyyy-mm-dd").parse(smart.getRequest().getParameter("hiredate"));
-//            sal=Float.parseFloat(smart.getRequest().getParameter("sal"));
-//            comm=Float.parseFloat(smart.getRequest().getParameter("comm"));
-//            if(smart.getFiles().getFile(0).getSize()>0){
-//                IPTimeStamp its=new IPTimeStamp(req.getRemoteAddr());
-//                photo=its.getIPTimeStampRand()+"."+smart.getFiles().getFile(0).getFileExt();        //拼凑上传文件名称
-//            }
-            emp.setEmpno(empno);
-            emp.setEname(ename);
-            emp.setJob(job);
-            emp.setHiredate(hiredate);
-            emp.setSal(sal);
-            emp.setComm(comm);
-//            emp.setPhoto(photo);
-            if(DAOFactory.getIEmpDAOInstance().doUpdate(emp)){
-//                if(smart.getFiles().getFile(0).getSize()>0){
-//                    //保存上传文件
-//                    smart.getFiles().getFile(0).saveAs(getServletContext().getRealPath("/")+"jsp/upload/"+photo);
-//                }
-                all.add("员工信息修改成功！");
-            }else{
-                all.add("员工信息修改失败！");
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        req.setAttribute("infoUpdate", all);
-        req.getRequestDispatcher("./emp/emp_update_do.jsp").forward(req, resp);
-    }
-    public void doDelete(HttpServletRequest req,HttpServletResponse resp)throws ServletException,IOException{
-        int empno=0;
-        String photo=null;
-        List all=new ArrayList();
-        try{
-            empno=Integer.parseInt(req.getParameter("empno"));
-            photo=req.getParameter("photo");
-            System.out.println("photo=="+photo);
-            if(DAOFactory.getIEmpDAOInstance().doDelete(empno)){
-                if(!(photo.equals("nophoto.jpg"))){
-//                    File f=new File(this.getServletContext().getRealPath("/")+"jsp/upload/"+photo);     //找到当前文件
-//                    System.out.println("当前文件是否存在=="+f.exists());
-//                    if(f.exists()){         //判断当前文件或者文件目录是否存在，则
-//                        f.delete();         //则进行删除
-//                    }
-                }
-                all.add("文件删除成功！");
-            }else{
-                all.add("文件删除失败！");
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        req.setAttribute("infoDelete", all);
-        req.getRequestDispatcher("jsp/admin/emp/emp_delete_do.jsp").forward(req, resp);
-    }
-    public void getAllEname(HttpServletRequest req,HttpServletResponse resp)throws ServletException,IOException{
-        req.setCharacterEncoding("gb2312");
-        resp.setContentType("text/html;charset=gb2312");
-        String ename=null;
-        PrintWriter out=resp.getWriter();
-        try{
-            System.out.println("++++++后台取javascript传递参数++++++++"+req.getParameter("ename"));
-//1.String name = URLDecoder.decode("客户端传输过来的中文字符","UTF-8");
-            ename=URLDecoder.decode(req.getParameter("ename"),"gb2312");
-            System.out.println("********servlet********"+ename);
-            if(DAOFactory.getIEmpDAOInstance().getAllEname(ename)){
-                out.print("true");
-            }else{
-                out.print("false");
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-    }
-
-
-
-
 
 
 }

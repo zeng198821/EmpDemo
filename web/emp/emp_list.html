@@ -1,0 +1,199 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>员工列表</title>
+    <script type="text/javascript" src="../js/demo.js"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h2 style="text-align: -webkit-center;">员工管理系统</h2>
+<button type="button" onclick="Function_EmpList.createEmpInPage()" class="btn btn-primary"><span class="glyphicon glyphicon-plus"></span>新增</button>
+<!--<button type="reset" onclick="tmpableObj.frushTable()" class="btn btn-success"><span class="glyphicon glyphicon-edit"></span>修改</button>-->
+<button type="button" onclick="Function_EmpList.deleteEmp()" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span>删除</button>
+<table id="table"
+       data-search="true"
+       data-show-refresh="true"
+       data-show-toggle="true"
+       data-show-columns="true"
+       data-show-export="true"
+       data-minimum-count-columns="2"
+       data-show-pagination-switch="true"
+       data-pagination="true"
+       data-id-field="id"
+       data-show-footer="false"
+       data-side-pagination="server">
+</table>
+
+
+
+
+<script type="application/javascript">
+
+    /**
+     * 页面变量信息
+     */
+    var Variable_EmpList = {
+        /**
+         * 数据列表控件ID
+         */
+        tableId:"table",
+        /**
+         *  Table控件操作对象
+         */
+        tmpableObj: {
+            /**
+             * table对象
+             */
+            $table: {},
+            /**
+             * 初始化表格控件
+             * @param tableID_para
+             */
+            inittable: function (tableID_para) {
+                Variable_EmpList.tmpableObj.$table = $('#' + tableID_para).bootstrapTable({
+                    ajax: this.tableAjax,
+                    height: $(window).height() - 200,
+                    striped: true,
+                    pagination: true,
+                    singleSelect: false,
+                    pageSize: 5,
+                    pageList: [5, 10, 50, 100, 200, 500],
+                    search: false, /*不显示 搜索框*/
+                    showColumns: false, /*不显示下拉框（选择显示的列）*/
+                    sidePagination: "server", /*服务端请求*/
+                    minimunCountColumns: 2,
+                    columns: [{field: 'state', checkbox: true}, {
+                        field: 'empno',
+                        title: '员工编号',
+                        width: 100,
+                        align: 'center',
+                        valign: 'middle'
+                    }, {field: 'ename', title: '员工姓名', width: 40, align: 'left', valign: 'top'}, {
+                        field: 'job',
+                        title: '职位',
+                        width: 80,
+                        align: 'left',
+                        valign: 'top'
+                    }, {field: 'hiredate', title: '入职日期', width: 80, align: 'middle', valign: 'top'}, {
+                        field: 'sal',
+                        title: '工资',
+                        width: 180,
+                        align: 'left',
+                        valign: 'top'
+                    }, {field: 'comm', title: '奖金', width: 100, align: 'left', valign: 'top'}],
+                    /**
+                     * 表格加载完成事件
+                     */
+                    onLoadSuccess: function () {
+                    },
+                    /**
+                     * 表格加载失败事件
+                     */
+                    onLoadError: function () {
+                        alert("数据加载失败！");
+                    },
+                    /**
+                     * 双击行回调事件
+                     * @param row 当前行数据信息
+                     * @param $element 当前节点Dom信息
+                     */
+                    onDblClickRow: function (row, $element) {
+                        var tmphtml = Function_EmpList.editEmpInPage(row.empno);
+                        tmphtml.onunload = function (a) {
+                            if (!zeng.isEmpty(a.target.URL))
+                                Variable_EmpList.tmpableObj.$table.bootstrapTable('refresh');
+                        };
+                    }
+                });
+            },
+            /**
+             * 查询数据请求回调函数
+             * @param params 回调参数对象
+             */
+            tableAjax: function (params) {
+
+                var queryUrl = "/empdemo/EmpServlet";
+                var tmppostdata = zeng.packetSubmitData("emp_list", "{}");
+                zeng.request.requestAjax(queryUrl, tmppostdata, {async: true}, null, null, function (tmpresultData) {
+                    params.success({total: tmpresultData.length, rows: tmpresultData});
+                });
+
+            },
+            /**
+             * 刷新表格
+             */
+            frushTable: function () {
+                tmpableObj.$table.bootstrapTable('refresh');
+            }
+
+        }
+    };
+
+
+    var Function_EmpList ={
+        /**
+         *  初始化
+         */
+        init : function () {
+            Variable_EmpList.tmpableObj.inittable.call(Variable_EmpList.tmpableObj,Variable_EmpList.tableId);
+        },
+        showWindow : function (url,height,width) {
+            if(navigator.userAgent.indexOf("Chrome") >0 ){
+                var winOption = "height="+height+",width="+width+",top=50,left=50,toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,fullscreen=0";
+                return  window.open(url,window, winOption);
+            }
+            else{
+                return window.showModalDialog(url, window, 'dialogHeight: ' + height + 'px; dialogWidth: ' + width + 'px;edge: Raised; center: Yes; help: Yes;scroll:no; resizable: no; status: no;resizable:yes');
+            }
+        },
+        /**
+         * 页面中编辑员工信息
+         * @param empno 员工ID
+         * @returns {*}
+         */
+        editEmpInPage : function (empno){
+            return Function_EmpList.showWindow("emp_insert.html?empno="+empno,600,400);
+        },
+        /**
+         * 创建新员工信息
+         */
+        createEmpInPage : function () {
+            var tmphtml =Function_EmpList.showWindow("emp_insert.html",600,400);;
+            tmphtml.onunload = function (a) {
+                if(!zeng.isEmpty(a.target.URL))
+                    Variable_EmpList.tmpableObj.$table.bootstrapTable('refresh');
+            };
+        },
+        /**
+         * 删除员工信息
+         *
+         */
+        deleteEmp : function () {
+            var tmpList = Function_EmpList.getSelectedEmpNoList();
+            var tmpresult = zeng.request.requestAjax("/empdemo/EmpServlet",zeng.packetSubmitData("emp_delete",tmpList));
+            if(!zeng.isEmpty(tmpresult) && !zeng.isEmpty(tmpresult.result)){
+                if(!zeng.isEmpty(tmpresult.message)){
+                    alert(tmpresult.message);
+                    Variable_EmpList.tmpableObj.$table.bootstrapTable('refresh');
+                }
+            }else{
+                alert("请求失败");
+            }
+        },
+        /**
+         * 获取选中的员工ID列表
+         * @returns 选中的员工ID列表
+         */
+        getSelectedEmpNoList : function () {
+            return Variable_EmpList.tmpableObj.$table.bootstrapTable('getSelections');
+        }
+    };
+
+    // 执行页面初始化
+    Function_EmpList.init();
+
+</script>
+
+</body>
+</html>

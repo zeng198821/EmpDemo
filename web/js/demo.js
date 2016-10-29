@@ -35,6 +35,7 @@ window['nui_model']=window['nui_model']||'min';
 
 document.write('<link href="' + bootPATH + 'css/bootstrap.min.css" rel="stylesheet"  media="screen" type="text/css" />');
 document.write('<link href="' + bootPATH + 'css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen" type="text/css" />');
+document.write('<link href="' + bootPATH + 'css/bootstrap-table.css" rel="stylesheet" media="screen" type="text/css" />');
 
 //Jquery
 document.write('<script src="' + bootPATH + 'js/jquery-1.11.2.min.js" type="text/javascript"></sc' + 'ript>');
@@ -42,5 +43,7 @@ document.write('<script src="' + bootPATH + 'js/extend.js" type="text/javascript
 document.write('<script src="' + bootPATH + 'js/bootstrap.min.js" type="text/javascript"></sc' + 'ript>');
 document.write('<script src="' + bootPATH + 'js/bootstrap-datetimepicker.js" type="text/javascript"></sc' + 'ript>');
 document.write('<script src="' + bootPATH + 'js/bootstrap-datetimepicker.zh-CN.js" type="text/javascript"></sc' + 'ript>');
+document.write('<script src="' + bootPATH + 'js/bootstrap-table.min.js" type="text/javascript"></sc' + 'ript>');
+document.write('<script src="' + bootPATH + 'js/bootstrap-table-zh-CN.min.js" type="text/javascript"></sc' + 'ript>');
 
 

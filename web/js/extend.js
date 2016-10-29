@@ -3,7 +3,30 @@ var zeng = {
         return (value === null) || (value === undefined) || (!allowEmptyString ? value === '' : false) || ($.isArray(value) && value.length === 0);
         
     },
+    copyTo : function (c, b) {
+        if (c && b) {
+            for (var a in b) {
+                c[a] = b[a]
+            }
+        }
+        return c
+    },
+    copyIf : function (c, b) {
+        if (c && b) {
+            for (var a in b) {
+                if (mini.isNull(c[a])) {
+                    c[a] = b[a]
+                }
+            }
+        }
+        return c
+    },
     form: {
+        /**
+         * 获取Form中的数据
+         * @param formID_para  FormID
+         * @returns {*} Form中的数据
+         */
         getformdata: function (formID_para) {
             var formIns = $("#" + formID_para);
             var fieldList = formIns.find(":input");
@@ -40,8 +63,32 @@ var zeng = {
         getformAction : function (formID_para){
             var formIns = $("#" + formID_para);
             return formIns.attr("action");            
-        }
-
+        },
+        /**
+         * 设置Form的数据
+         * @param FormId_para FormID
+         * @param FormData_para 待设置的Form数据
+         */
+        setFormData : function(FormId_para,FormData_para){
+            var formIns = $("#" + FormId_para);
+            var fieldList = formIns.find(":input");
+            var tmpformfieldname = formIns.attr("field");
+            var tmpData = zeng.isEmpty(tmpformfieldname) ? FormData_para : FormData_para[tmpformfieldname];
+            for (var i = 0; i < fieldList.length; i++) {
+                var tmptag = $(fieldList[i]);
+                var tmpfieldname = "";
+                var tmptype = tmptag[0].type;
+                tmpfieldname = tmptag.attr("field");
+                if (zeng.isEmpty(tmpfieldname)|| zeng.isEmpty(tmpData[tmpfieldname])) {
+                    continue;
+                }
+                if (tmptype == "checkbox") {
+                    tmptag[0].checked = tmpData[tmpfieldname];
+                } else {
+                    tmptag.val(tmpData[tmpfieldname]);
+                }
+            }
+        },
     },
     request: {
         /**
@@ -128,11 +175,11 @@ var zeng = {
                 async: tmpasync,
                 contentType: 'text/json',
                 success: function (text) {
-                    console.log("SuccessCallBack");
+                    //console.log("SuccessCallBack");
                     tmpresult = text;
                     if (tmpasync) {
                         try {
-                            tmpSuccessCallBack(text);
+                            tmpSuccessCallBack(zeng.JSON.decode(text));
                         } catch (e) {
                             console.log("页面代码错误：" + e.stack);
                         }
@@ -142,11 +189,11 @@ var zeng = {
                     }
                 },
                 error: function (text) {
-                    console.log(text);
+                    //console.log(text);
                     tmpresult = text;
                     if (tmpasync) {
                         try {
-                            tmpErrorCallBack(text);
+                            tmpErrorCallBack(zeng.JSON.decode(text));
                         } catch (e) {
                             console.log("页面代码错误：" + e.stack);
                         }
@@ -157,8 +204,9 @@ var zeng = {
                 },
                 complete: function (text) {
                     //console.log("CompleteCallBack");
+                    tmpresult = text;
                     try {
-                        tmpCompleteCallBack(text);
+                        tmpCompleteCallBack(zeng.JSON.decode(text));
                     } catch (e) {
                         console.log("页面代码错误：" + e.stack);
                     }
@@ -172,7 +220,7 @@ var zeng = {
             }
             $.ajax(tmpReqData);
             if (!tmpasync) {
-                return tmpresult;
+                return zeng.JSON.decode(tmpresult.responseText);
             }
         }
     }
@@ -559,4 +607,95 @@ zeng.closeWindow = function(){
     else
         window.close();
 
+};
+zeng._doOpen = function (c) {
+    if (typeof c == "string") {
+        c = {
+            url : c
+        }
+    }
+    c = zeng.copyTo({
+        width : 700,
+        height : 400,
+        allowResize : true,
+        allowModal : true,
+        closeAction : "destroy",
+        title : "",
+        titleIcon : "",
+        iconCls : "",
+        iconStyle : "",
+        bodyStyle : "padding: 0",
+        url : "",
+        showCloseButton : true,
+        showFooter : false
+    }, c);
+    c.closeAction = "destroy";
+    var i = c.onload;
+    delete c.onload;
+    var g = c.ondestroy;
+    delete c.ondestroy;
+    var b = c.url;
+    delete c.url;
+    var e = mini.getViewportBox();
+    if (c.width && String(c.width).indexOf("%") != -1) {
+        var a =
+            parseInt(c.width);
+        c.width = parseInt(e.width * (a / 100))
+    }
+    if (c.height && String(c.height).indexOf("%") != -1) {
+        var d = parseInt(c.height);
+        c.height = parseInt(e.height * (d / 100))
+    }
+    var f = new mini.Window();
+    f.set(c);
+    f.load(b, i, g);
+    f.show();
+    return f
+};
+
+
+zeng.open = function (b) {
+    if (!b) {
+        return
+    }
+    var a = b.url;
+    if (!a) {
+        a = ""
+    }
+    var f = a.split("#");
+    var a = f[0];
+    if (a && a.indexOf("_winid") == -1) {
+        var c = "_winid=" + mini._WindowID;
+        if (a.indexOf("?") == -1) {
+            a += "?" + c
+        } else {
+            a += "&" + c
+        }
+        if (f[1]) {
+            a = a + "#" + f[1]
+        }
+    }
+    b.url = a;
+    b.Owner = window;
+    var g = [];
+    function d(i) {
+        try {
+            if (i.mini) {
+                g.push(i)
+            }
+            if (i.parent && i.parent != i) {
+                d(i.parent)
+            }
+        } catch (h) {}
+
+    }
+    d(window);
+    var e = g[g.length - 1];
+    return e.mini._doOpen(b)
+};
+zeng.GetQueryString = function (name)
+{
+    var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+    var r = window.location.search.substr(1).match(reg);
+    if(r!=null)return  unescape(r[2]); return null;
 };
