@@ -8,9 +8,11 @@
 </head>
 <body>
 <h2 style="text-align: -webkit-center;">员工管理系统</h2>
+<div class="col-md-2">
 <button type="button" onclick="Function_EmpList.createEmpInPage()" class="btn btn-primary"><span class="glyphicon glyphicon-plus"></span>新增</button>
-<!--<button type="reset" onclick="tmpableObj.frushTable()" class="btn btn-success"><span class="glyphicon glyphicon-edit"></span>修改</button>-->
 <button type="button" onclick="Function_EmpList.deleteEmp()" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span>删除</button>
+</div>
+
 <table id="table"
        data-search="true"
        data-show-refresh="true"
@@ -20,8 +22,6 @@
        data-minimum-count-columns="2"
        data-show-pagination-switch="true"
        data-pagination="true"
-       data-id-field="id"
-       data-show-footer="false"
        data-side-pagination="server">
 </table>
 
@@ -46,7 +46,7 @@
              * table对象
              */
             $table: {},
-            queryParamter:{number:1,size:5},
+
             /**
              * 初始化表格控件
              * @param tableID_para
@@ -58,9 +58,9 @@
                     striped: true,
                     pagination: true,
                     singleSelect: false,
-                    pageSize: 5,
-                    pageList: [5, 10, 50, 100, 200, 500],
-                    search: false, /*不显示 搜索框*/
+                    pageSize: 2,
+                    pageList: [2,5, 10, 50, 100, 200, 500],
+                    search: true, /*不显示 搜索框*/
                     showColumns: false, /*不显示下拉框（选择显示的列）*/
                     sidePagination: "server", /*服务端请求*/
                     minimunCountColumns: 2,
@@ -112,8 +112,7 @@
                      * @param size 当前分页大小
                      */
                     onPageChange :function (number, size) {
-                        tmpableObj.inittable.queryParamter.number = number;
-                        tmpableObj.inittable.queryParamter.size = size;
+
                     }
                 });
             },
@@ -122,11 +121,12 @@
              * @param params 回调参数对象
              */
             tableAjax: function (params) {
+                var queryParamter = {number:params.data.offset,size:params.data.limit,keyValue:zeng.isEmpty(params.data.search) ? '' : params.data.search};
 
                 var queryUrl = "/empdemo/EmpServlet";
-                var tmppostdata = zeng.packetSubmitData("emp_list", "{}");
+                var tmppostdata = zeng.packetSubmitData("emp_list", queryParamter);
                 zeng.request.requestAjax(queryUrl, tmppostdata, {async: true}, null, null, function (tmpresultData) {
-                    params.success({total: tmpresultData.length, rows: tmpresultData});
+                    params.success({total: tmpresultData.total, rows: tmpresultData.datalist});
                 });
 
             },
@@ -134,7 +134,7 @@
              * 刷新表格
              */
             frushTable: function () {
-                tmpableObj.$table.bootstrapTable('refresh');
+                Variable_EmpList.tmpableObj.$table.bootstrapTable('refresh');
             }
 
         }

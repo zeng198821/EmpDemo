@@ -12,6 +12,7 @@ import java.net.StandardSocketOptions;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -22,9 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import cn.edu.zjvtit.empdemo.dao.impl.EmpDAOImpl;
 import cn.edu.zjvtit.empdemo.factory.DAOFactory;
 import cn.edu.zjvtit.empdemo.util.JsonHelp;
-import cn.edu.zjvtit.empdemo.vo.CommData;
-import cn.edu.zjvtit.empdemo.vo.Emp;
-import cn.edu.zjvtit.empdemo.vo.RespData;
+import cn.edu.zjvtit.empdemo.vo.*;
 
 
 public class EmpServlet extends HttpServlet{
@@ -68,13 +67,20 @@ public class EmpServlet extends HttpServlet{
             doResponse(resp,tmpEmp);
         }
         if(p.equals("emp_list")){
+            HashMap<String,Object> tmpresult=new HashMap<String,Object>();
             List tmpdata = null;
+            QueryParameter tmppara = null;
+            int tmpTotal=0;
+            tmppara = (QueryParameter)JsonHelp.formatJson(tmpCommData.getSubmitData(),QueryParameter.class);
             try{
-                tmpdata = DAOFactory.getIEmpDAOInstance().findAll(1,10,"");
+                tmpdata = DAOFactory.getIEmpDAOInstance().findAll(tmppara.getNumber(),tmppara.getSize(),tmppara.getKeyValue());
+                tmpTotal = DAOFactory.getIEmpDAOInstance().getAllCount(tmppara.getKeyValue());
+                tmpresult.put("datalist",tmpdata);
+                tmpresult.put("total",tmpTotal);
             }catch (Exception ex){
                 System.out.printf(ex.toString());
             }
-            doResponse(resp,tmpdata);
+            doResponse(resp,tmpresult);
         }
 
         if(p.equals("emp_update")){

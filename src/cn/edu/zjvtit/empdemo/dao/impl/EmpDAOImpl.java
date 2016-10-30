@@ -119,20 +119,14 @@ public class EmpDAOImpl implements IEmpDAO {
         if(keyword==null||"".equals(keyword)){
             sql="SELECT  empno,ename,job,hiredate,sal,comm,photo FROM " +
                     "(SELECT  empno,ename,job,hiredate,sal,comm,photo FROM " +
-                    "(SELECT  * FROM emp1 ORDER BY empno ASC)temptlb1 ORDER BY empno DESC)temptlb2 ORDER BY empno asc";
+                    "(SELECT  * FROM emp1 ORDER BY empno ASC)temptlb1 ORDER BY empno DESC)temptlb2 ORDER BY empno asc LIMIT " + currentPage +","+ lineSize;
         }else{
             sql="SELECT empno,ename,job,hiredate,sal,comm,photo FROM emp1 WHERE empno LIKE '%"+keyword+"%' " +
                     "OR ename LIKE '%"+keyword+"%' OR job LIKE '%"+keyword+"%' OR hiredate LIKE '%"+keyword+"%'" +
-                    " OR sal LIKE '%"+keyword+"%' OR comm LIKE '%"+keyword+"%' ";
+                    " OR sal LIKE '%"+keyword+"%' OR comm LIKE '%"+keyword+"%' ORDER BY empno asc LIMIT " + currentPage +","+ lineSize;
         }
         try{
             pstmt=this.conn.prepareStatement(sql);
-//          pstmt.setString(1, "%"+keyword+"%");
-//          pstmt.setString(2, "%"+keyword+"%");
-//          pstmt.setString(3, "%"+keyword+"%");
-//          pstmt.setString(4, "%"+keyword+"%");
-//          pstmt.setString(5, "%"+keyword+"%");
-//          pstmt.setString(6, "%"+keyword+"%");
             System.out.println(sql);
             ResultSet rs=pstmt.executeQuery();
             Emp emp=null;

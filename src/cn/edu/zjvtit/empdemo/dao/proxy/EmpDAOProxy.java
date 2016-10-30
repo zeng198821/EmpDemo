@@ -117,6 +117,7 @@ public class EmpDAOProxy implements IEmpDAO {
 
     public int getAllCount(String keyword) throws Exception {
         // TODO Auto-generated method stub
+        count=this.dao.getAllCount(keyword);
         return this.count;
     }
 
