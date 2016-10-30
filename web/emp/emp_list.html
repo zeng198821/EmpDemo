@@ -46,6 +46,7 @@
              * table对象
              */
             $table: {},
+            queryParamter:{number:1,size:5},
             /**
              * 初始化表格控件
              * @param tableID_para
@@ -104,6 +105,15 @@
                             if (!zeng.isEmpty(a.target.URL))
                                 Variable_EmpList.tmpableObj.$table.bootstrapTable('refresh');
                         };
+                    },
+                    /**
+                     * 分页变化事件
+                     * @param number 当前分页
+                     * @param size 当前分页大小
+                     */
+                    onPageChange :function (number, size) {
+                        tmpableObj.inittable.queryParamter.number = number;
+                        tmpableObj.inittable.queryParamter.size = size;
                     }
                 });
             },
