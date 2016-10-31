@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.edu.zjvtit.empdemo.dao.IEmpDAO;
 import cn.edu.zjvtit.empdemo.dao.impl.EmpDAOImpl;
 import cn.edu.zjvtit.empdemo.factory.DAOFactory;
 import cn.edu.zjvtit.empdemo.util.JsonHelp;
@@ -73,8 +74,9 @@ public class EmpServlet extends HttpServlet{
             int tmpTotal=0;
             tmppara = (QueryParameter)JsonHelp.formatJson(tmpCommData.getSubmitData(),QueryParameter.class);
             try{
-                tmpdata = DAOFactory.getIEmpDAOInstance().findAll(tmppara.getNumber(),tmppara.getSize(),tmppara.getKeyValue());
-                tmpTotal = DAOFactory.getIEmpDAOInstance().getAllCount(tmppara.getKeyValue());
+                IEmpDAO  tmpdao = DAOFactory.getIEmpDAOInstance();
+                tmpdata = tmpdao.findAll(tmppara.getNumber(),tmppara.getSize(),tmppara.getKeyValue());
+                tmpTotal = tmpdao.getAllCount(tmppara.getKeyValue());
                 tmpresult.put("datalist",tmpdata);
                 tmpresult.put("total",tmpTotal);
             }catch (Exception ex){
